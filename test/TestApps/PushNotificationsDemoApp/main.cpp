@@ -146,8 +146,6 @@ int main()
     PushNotificationManager::Default().Unregister();
 
     AppNotificationManager::Default().Unregister();
-
-    AppNotificationManager::Default().Unregister();
     if (!Test::AppModel::IsPackagedProcess())
     {
         MddBootstrapShutdown();

@@ -47,6 +47,9 @@ using namespace Microsoft::Windows::AppNotifications::Helpers;
 
 namespace winrt::Microsoft::Windows::AppNotifications::implementation
 {
+    // Must be static for AppNotificationManager::Deserialize
+    static wil::unique_event s_waitHandleForArgs;
+
     winrt::Microsoft::Windows::AppNotifications::AppNotificationManager AppNotificationManager::Default()
     {
         static auto appNotificationManager{winrt::make<AppNotificationManager>()};
@@ -81,7 +84,7 @@ namespace winrt::Microsoft::Windows::AppNotifications::implementation
         }
 
         // Create event handle before COM Registration otherwise if a notification arrives will lead to race condition
-        GetWaitHandleForArgs().create();
+        s_waitHandleForArgs.create();
 
         {
             auto lock{ m_lock.lock_exclusive() };
@@ -200,7 +203,7 @@ namespace winrt::Microsoft::Windows::AppNotifications::implementation
             {
                 auto appProperties = winrt::CoreApplication::Properties();
                 appProperties.Insert(ACTIVATED_EVENT_ARGS_KEY, activatedEventArgs);
-                SetEvent(GetWaitHandleForArgs().get());
+                SetEvent(s_waitHandleForArgs.get());
             }
         }
         else
@@ -354,5 +357,13 @@ namespace winrt::Microsoft::Windows::AppNotifications::implementation
         }
 
         co_return toastNotifications;
+    }
+
+    winrt::Windows::Foundation::IInspectable AppNotificationManager::Deserialize(winrt::Windows::Foundation::Uri const& /* uri */)
+    {
+        const DWORD receiveArgsTimeoutInMSec{ 2000 };
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_TIMEOUT), s_waitHandleForArgs.wait(receiveArgsTimeoutInMSec));
+
+        return winrt::Windows::ApplicationModel::Core::CoreApplication::Properties().Lookup(ACTIVATED_EVENT_ARGS_KEY);
     }
 }
