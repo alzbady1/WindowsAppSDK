@@ -49,6 +49,7 @@ namespace winrt::Microsoft::Windows::AppNotifications::implementation
         winrt::event<NotificationActivationEventHandler> m_notificationHandlers;
         bool m_firstNotificationReceived{ false };
         wil::unique_event m_waitHandleForArgs;
+        winrt::Microsoft::Windows::AppNotifications::AppNotificationActivatedEventArgs m_activatedEventArgs{ nullptr };
     };
 
     struct AppNotificationManagerFactory : winrt::implements<AppNotificationManagerFactory, IClassFactory>
