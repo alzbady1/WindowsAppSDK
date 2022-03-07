@@ -485,7 +485,7 @@ jobs:
         WindowsAppSDKPackageVersion: $(VersionWithDevTag)
         TestSelection: '*Foundation_*'
         TransportPackageArtifactName: 'FullNuget'
-        BuildType: 'stable'
+        BuildType: 'experimental'
         TransportPackages: 
           FoundationPackage:
             Name: Microsoft.WindowsAppSDK.Foundation.TransportPackage
